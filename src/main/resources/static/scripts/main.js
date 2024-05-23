@@ -7,7 +7,7 @@
         var $message;
         $message = $($(".message_template").clone().html());
         $message.addClass(_this.message_side).find(".text").html(_this.text);
-        if (this.message_side === "left") {
+        if (_this.message_side === "left") {
           url = "/images/bot.png";
         } else {
           url = "/images/user.png";
@@ -29,7 +29,7 @@
       return $message_input.val();
     };
     sendMessage = function (text) {
-      var $messages, message, messages_list, msg_idx;
+      var $messages, message, responseMessage;
       if (text.trim() === "") {
         return;
       }
@@ -41,46 +41,17 @@
       });
       message.draw();
 
-      //   // Simulate server response
-      //   setTimeout(function () {
-      //     messages_list = ["Answered.", "or not..."];
-      //     for (var msg_idx in messages_list) {
-      //       message = new Message({
-      //         text: messages_list[msg_idx],
-      //         message_side: "left",
-      //       });
-      //       message.draw();
-      //     }
-      //     $messages.stop().animate({ scrollTop: $messages.prop("scrollHeight") }, 700);
-      //   }, 1000);
-
-      //   $.ajax({
-      //     async: false,
-      //     type: "GET",
-      //     url: "/chat/get_botresponse",
-      //     data: { message: text },
-      //     success: function (response) {
-      //         responseMessage = response;
-      //     },
-      //     error: function () {
-      //         responseMessage = "Error: Could not get response.";
-      //     }
-      // });
-
-      // message = new Message({
-      //     text: responseMessage,
-      //     message_side: "left",
-      // });
-      // message.draw();
-
-      // return $messages.stop().animate({ scrollTop: $messages.prop("scrollHeight") }, 700);
       $.ajax({
         type: "POST",
         url: "/api/sendMessage",
         data: JSON.stringify({ message: text }),
         contentType: "application/json",
         success: function (response) {
-          responseMessage = response;
+          if (response.status === "Success") {
+            responseMessage = response.message;
+          } else {
+            responseMessage = "Hata: Mesaj alınamadı.";
+          }
           message = new Message({
             text: responseMessage,
             message_side: "left",
@@ -88,7 +59,7 @@
           message.draw();
         },
         error: function () {
-          responseMessage = "Error: Could not get response.";
+          responseMessage = "Hata: Mesaj alınamadı.";
           message = new Message({
             text: responseMessage,
             message_side: "left",
